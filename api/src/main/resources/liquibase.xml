@@ -977,7 +977,7 @@
                 <columnExists tableName="fhir_reference" columnName="target_uuid"/>
         </preConditions>
         <modifyDataType columnName="target_uuid" newDataType="char(38)" tableName="fhir_reference"/>
-        <dropUniqueConstraint constraintName="target_uuid"  tableName="fhir_reference" uniqueColumns="target_uuid"/>  
+        <dropUniqueConstraint constraintName="target_uuid"  tableName="fhir_reference" uniqueColumns="target_uuid"/>
     </changeSet>
 
     <changeSet id="drop_fhir_duration_unit_map_20220412" author="mseaton">
@@ -1014,5 +1014,159 @@
                                  constraintName="task_location_reference_fk"
                                  referencedTableName="fhir_reference"
                                  referencedColumnNames="reference_id"/>
+    </changeSet>
+    <changeSet id="add_fhir_schedule_202307131716" author="Bindu, Ritesh">
+    <preConditions onFail="MARK_RAN" onError="WARN">
+        <not>
+            <tableExists tableName="fhir_schedule"/>
+        </not>
+    </preConditions>
+    <comment>
+        Create Schedule table for the Schedule FHIR resource
+    </comment>
+    <createTable tableName="fhir_schedule">
+        <column name="schedule_id" type="int" autoIncrement="true">
+            <constraints primaryKey="true"/>
+        </column>
+        <column name="for_reference_id" type="int"/>
+
+        <column name="uuid" type="char(38)">
+            <constraints nullable="false" unique="true"/>
+        </column>
+        <column name="active" type="boolean" />
+        <column name="service_category_id" type="int"/>
+        <column name="service_type_id" type="int"/>
+        <column name="speciality_id" type="int"/>
+        <column name="start_date" type="datetime">
+            <constraints nullable="false"/>
+        </column>
+        <column name="end_date" type="datetime">
+            <constraints nullable="false"/>
+        </column>
+        <column name="creator" type="int">
+            <constraints nullable="false"/>
+        </column>
+        <column name="date_created" type="datetime">
+            <constraints nullable="false"/>
+        </column>
+        <column name="changed_by" type="int"/>
+        <column name="date_changed" type="datetime"/>
+        <column name="retired" type="boolean" defaultValueBoolean="false">
+            <constraints nullable="false"/>
+        </column>
+        <column name="retired_by" type="int"/>
+        <column name="date_retired" type="datetime"/>
+        <column name="retire_reason" type="varchar(255)" defaultValue="null"/>
+    </createTable>
+
+    <addForeignKeyConstraint constraintName="schedule_creator"
+                             baseTableName="fhir_schedule" baseColumnNames="creator"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint constraintName="schedule_changed_by"
+                             baseTableName="fhir_schedule" baseColumnNames="changed_by"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint constraintName="fhir_schedule_retired_by_fk"
+                             baseTableName="fhir_schedule" baseColumnNames="retired_by"
+                             referencedTableName="users" referencedColumnNames="user_id"/>
+    <addForeignKeyConstraint constraintName="schedule_for_reference_id"
+                             baseTableName="fhir_schedule" baseColumnNames="for_reference_id"
+                             referencedTableName="fhir_reference" referencedColumnNames="reference_id"/>
+    <addForeignKeyConstraint constraintName="schedule_service_category"
+                             baseTableName="fhir_schedule" baseColumnNames="service_category_id"
+                             referencedTableName="concept" referencedColumnNames="concept_id"/>
+    <addForeignKeyConstraint constraintName="schedule_service_type"
+                             baseTableName="fhir_schedule" baseColumnNames="service_type"
+                             referencedTableName="concept" referencedColumnNames="concept_id"/>
+    <addForeignKeyConstraint constraintName="schedule_service_type"
+                             baseTableName="fhir_schedule" baseColumnNames="service_type"
+                             referencedTableName="concept" referencedColumnNames="concept_id"/>
+    <addForeignKeyConstraint constraintName="schedule_speciality_id"
+                             baseTableName="fhir_schedule" baseColumnNames="speciality_id"
+                             referencedTableName="concept" referencedColumnNames="concept_id"/>
+
+
+
+    </changeSet>
+    <changeSet id="add_fhir_slot_202307131716" author="Bindu, Ritesh">
+        <preConditions onFail="MARK_RAN" onError="WARN">
+            <not>
+                <tableExists tableName="fhir_slot"/>
+            </not>
+        </preConditions>
+        <comment>
+            Create Slot table for the Slot FHIR resource
+        </comment>
+        <createTable tableName="fhir_slot">
+            <column name="slot_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="uuid" type="char(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+            <column name="location_id" type="int" />
+            <column name="overbooked" type="boolean" />
+            <column name="service_category_id" type="int"/>
+            <column name="service_type_id" type="int"/>
+            <column name="speciality_id" type="int"/>
+            <column name="appointment_type_id" type="int"/>
+            <column name="schedule_reference_id" type="int"/>
+            <column name="start_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="end_date" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="varchar(50)"/>
+            <column name="comment" type="varchar(255)"/>
+            <column name="order_id" type="int"/>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="changed_by" type="int"/>
+            <column name="date_changed" type="datetime"/>
+            <column name="retired" type="boolean" defaultValueBoolean="false">
+                <constraints nullable="false"/>
+            </column>
+            <column name="retired_by" type="int"/>
+            <column name="date_retired" type="datetime"/>
+            <column name="retire_reason" type="varchar(255)" defaultValue="null"/>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="slot_creator"
+                                 baseTableName="fhir_slot" baseColumnNames="creator"
+                                 referencedTableName="users" referencedColumnNames="user_id"/>
+        <addForeignKeyConstraint constraintName="slot_changed_by"
+                                 baseTableName="fhir_slot" baseColumnNames="changed_by"
+                                 referencedTableName="users" referencedColumnNames="user_id"/>
+        <addForeignKeyConstraint constraintName="fhir_slot_retired_by_fk"
+                                 baseTableName="fhir_slot" baseColumnNames="retired_by"
+                                 referencedTableName="users" referencedColumnNames="user_id"/>
+        <addForeignKeyConstraint constraintName="slot_service_category"
+                                 baseTableName="fhir_slot" baseColumnNames="service_category_id"
+                                 referencedTableName="concept" referencedColumnNames="concept_id"/>
+        <addForeignKeyConstraint constraintName="slot_service_type"
+                                 baseTableName="fhir_slot" baseColumnNames="service_type"
+                                 referencedTableName="concept" referencedColumnNames="concept_id"/>
+        <addForeignKeyConstraint constraintName="slot_service_type"
+                                 baseTableName="fhir_slot" baseColumnNames="service_type"
+                                 referencedTableName="concept" referencedColumnNames="concept_id"/>
+        <addForeignKeyConstraint constraintName="slot_speciality_id"
+                                 baseTableName="fhir_slot" baseColumnNames="speciality_id"
+                                 referencedTableName="concept" referencedColumnNames="concept_id"/>
+        <addForeignKeyConstraint constraintName="slot_appointment_type_id"
+                                 baseTableName="fhir_slot" baseColumnNames="appointment_type_id"
+                                 referencedTableName="concept" referencedColumnNames="concept_id"/>
+        <addForeignKeyConstraint constraintName="slot_location_id"
+                                 baseTableName="fhir_slot" baseColumnNames="location_id"
+                                 referencedTableName="location" referencedColumnNames="location_id"/>
+        <addForeignKeyConstraint constraintName="slot_schedule_id"
+                                 baseTableName="fhir_slot" baseColumnNames="schedule_id"
+                                 referencedTableName="fhir_schedule" referencedColumnNames="schedule_id"/>
+
+
+
     </changeSet>
 </databaseChangeLog>

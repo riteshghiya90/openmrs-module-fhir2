@@ -13,8 +13,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.openmrs.BaseOpenmrsMetadata;
+import org.openmrs.Concept;
+import org.openmrs.Location;
+import org.openmrs.Patient;
+import org.openmrs.api.ConceptService;
 
 import javax.persistence.*;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -22,11 +27,11 @@ import javax.persistence.*;
 @Entity
 @Table(name = "fhir_schedule")
 public class FhirSchedule extends BaseOpenmrsMetadata {
-	
+
 	// Based on https://hl7.org/fhir/R4/schedule.html v4.0.1
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -42,15 +47,67 @@ public class FhirSchedule extends BaseOpenmrsMetadata {
 	private FhirReference forReference;
 
 	/**
-	 * The location Where task occurs
+	 * The location Where schedule occurs
 	 */
-	@OneToOne(cascade = CascadeType.ALL)
-	@JoinColumn(name = "location_reference_id", referencedColumnName = "reference_id")
-	private FhirReference locationReference;
+	@ManyToOne(optional = false)
+	@JoinColumn(name = "location_id", referencedColumnName = "location_id")
+	private Location locationId;
 
 	/**
 	 * Whether this schedule is in active use
 	 */
 	@Column(name = "active", nullable = false)
 	private boolean active = Boolean.TRUE;
+
+	/**
+	 * The Service Category of the Schedule
+	 */
+	@OneToOne
+	@JoinColumn(name = "service_category_id", referencedColumnName = "concept_id")
+	private Concept serviceCategoryId ;
+
+	/**
+	 * The Service Type of the Schedule
+	 */
+	@OneToOne
+	@JoinColumn(name = "service_type_id", referencedColumnName = "concept_id")
+	private Concept serviceTyppeId ;
+
+	/**
+	 * The Speciality of the Schedule
+	 */
+	@OneToOne
+	@JoinColumn(name = "speciality_id", referencedColumnName = "concept_id")
+	private Concept specialityId ;
+
+	/**
+	 * The Start Date the Schedule
+	 */
+	@Column(name = "start_date", nullable = false)
+	private Date startDate;
+
+	/**
+	 * The End Date the Schedule
+	 */
+	@Column(name = "end_date", nullable = false)
+	private Date endDate;
+
+	/**
+	 * Any Comment for the Schedule
+	 */
+	@Column(name = "comment")
+	private String comment;
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
